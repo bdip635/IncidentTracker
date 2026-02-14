@@ -4,88 +4,115 @@
   gap: 1rem;
 }
 
-.toolbar {
+.filtersSection {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  align-items: flex-end;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.title {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #f8fafc;
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
-.newButton {
-  padding: 0.5rem 1rem;
-  background: #3b82f6;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 6px;
+.filterLabel {
+  font-size: 0.875rem;
   font-weight: 500;
-  font-size: 0.9375rem;
+  color: #64748b;
 }
 
-.newButton:hover {
-  background: #2563eb;
-}
-
-.filters {
+.severityCheckboxes {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.5rem 1rem;
   align-items: center;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+  color: #334155;
+  cursor: pointer;
+}
+
+.checkbox {
+  width: 1rem;
+  height: 1rem;
+}
+
+.select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  color: #334155;
+  font-size: 0.9375rem;
+  min-width: 140px;
+}
+
+.select:focus {
+  outline: none;
+  border-color: #64748b;
+}
+
+.searchRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
 }
 
 .search {
-  flex: 1;
-  min-width: 200px;
   padding: 0.5rem 0.75rem;
-  border: 1px solid #475569;
+  border: 1px solid #cbd5e1;
   border-radius: 6px;
-  background: #1e293b;
-  color: #f8fafc;
+  background: #fff;
+  color: #334155;
   font-size: 0.9375rem;
+  min-width: 200px;
 }
 
 .search::placeholder {
-  color: #64748b;
+  color: #94a3b8;
 }
 
 .search:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  border-color: #64748b;
 }
 
-.select,
-.serviceInput {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #475569;
+.filterBtn {
+  padding: 0.5rem 1rem;
+  background: #475569;
+  color: #fff;
+  border: none;
   border-radius: 6px;
-  background: #1e293b;
-  color: #f8fafc;
+  font-weight: 500;
   font-size: 0.9375rem;
+  cursor: pointer;
 }
 
-.serviceInput {
-  min-width: 140px;
+.filterBtn:hover {
+  background: #334155;
 }
 
 .error {
   padding: 0.75rem 1rem;
-  background: #7f1d1d;
-  color: #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
   border-radius: 6px;
   font-size: 0.9375rem;
 }
 
 .tableWrap {
-  background: #1e293b;
-  border: 1px solid #334155;
+  background: #fff;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
   overflow: hidden;
 }
@@ -100,12 +127,12 @@
 .table td {
   padding: 0.75rem 1rem;
   text-align: left;
-  border-bottom: 1px solid #334155;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .table thead {
-  background: #0f172a;
-  color: #94a3b8;
+  background: #f8fafc;
+  color: #64748b;
 }
 
 .thBtn {
@@ -119,11 +146,15 @@
 }
 
 .thBtn:hover {
-  color: #f8fafc;
+  color: #334155;
 }
 
-.table tbody tr:hover {
-  background: #3341551a;
+.rowLink {
+  cursor: pointer;
+}
+
+.rowLink:hover {
+  background: #f1f5f9;
 }
 
 .cellTitle {
@@ -133,8 +164,17 @@
   white-space: nowrap;
 }
 
+.titleLink {
+  color: #1e40af;
+  text-decoration: none;
+}
+
+.titleLink:hover {
+  text-decoration: underline;
+}
+
 .cellDate {
-  color: #94a3b8;
+  color: #64748b;
   white-space: nowrap;
 }
 
@@ -144,29 +184,43 @@
   padding: 2rem !important;
 }
 
-.viewLink {
-  color: #3b82f6;
-  text-decoration: none;
+/* Severity */
+.sev_SEV1 { color: #b91c1c; font-weight: 600; }
+.sev_SEV2 { color: #c2410c; font-weight: 500; }
+.sev_SEV3 { color: #a16207; }
+.sev_SEV4 { color: #15803d; }
+
+/* Status tags (pill style) */
+.status_OPEN,
+.status_MITIGATED,
+.status_RESOLVED {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.8125rem;
+  font-weight: 500;
 }
 
-.viewLink:hover {
-  text-decoration: underline;
+.status_OPEN {
+  background: #fef3c7;
+  color: #92400e;
 }
 
-.sev_SEV1 { color: #ef4444; font-weight: 600; }
-.sev_SEV2 { color: #f97316; font-weight: 500; }
-.sev_SEV3 { color: #eab308; }
-.sev_SEV4 { color: #22c55e; }
+.status_MITIGATED {
+  background: #dbeafe;
+  color: #1e40af;
+}
 
-.status_OPEN { color: #f59e0b; }
-.status_MITIGATED { color: #3b82f6; }
-.status_RESOLVED { color: #22c55e; }
+.status_RESOLVED {
+  background: #d1fae5;
+  color: #065f46;
+}
 
 @media (max-width: 768px) {
   .tableWrap {
     overflow-x: auto;
   }
   .table {
-    min-width: 700px;
+    min-width: 600px;
   }
 }

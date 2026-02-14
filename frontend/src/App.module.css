@@ -9,20 +9,20 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1.5rem;
-  background: #1a1d24;
-  color: #e2e8f0;
-  border-bottom: 1px solid #334155;
+  background: #fff;
+  color: #334155;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .logo {
   font-weight: 700;
   font-size: 1.25rem;
-  color: #f8fafc;
+  color: #1e293b;
   text-decoration: none;
 }
 
 .logo:hover {
-  color: #94a3b8;
+  color: #475569;
 }
 
 .nav {
@@ -31,13 +31,27 @@
 }
 
 .navLink {
-  color: #94a3b8;
+  color: #64748b;
   text-decoration: none;
   font-size: 0.9375rem;
 }
 
 .navLink:hover {
-  color: #f8fafc;
+  color: #1e293b;
+}
+
+.newButton {
+  padding: 0.5rem 1rem;
+  background: #475569;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.9375rem;
+}
+
+.newButton:hover {
+  background: #334155;
 }
 
 .main {

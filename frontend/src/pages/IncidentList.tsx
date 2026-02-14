@@ -1,23 +1,19 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { incidentsApi } from '../api/incidents'
 import type { Incident, ListParams, Severity, Status } from '../types/incident'
 import { useDebounce } from '../hooks/useDebounce'
 import { Pagination } from '../components/Pagination'
 import { TableLoading } from '../components/TableLoading'
+import { SERVICE_OPTIONS } from '../constants/services'
 import styles from '../styles/IncidentList.module.css'
 
+const SEVERITIES: Severity[] = ['SEV1', 'SEV2', 'SEV3', 'SEV4']
+const STATUS_LABEL: Record<Status, string> = { OPEN: 'Open', MITIGATED: 'Mitigated', RESOLVED: 'Resolved' }
 type SortKey = 'title' | 'service' | 'severity' | 'status' | 'createdAt' | 'updatedAt'
-const SORT_OPTIONS: { value: string; label: string }[] = [
-  { value: 'createdAt,desc', label: 'Newest first' },
-  { value: 'createdAt,asc', label: 'Oldest first' },
-  { value: 'updatedAt,desc', label: 'Recently updated' },
-  { value: 'title,asc', label: 'Title A–Z' },
-  { value: 'severity,asc', label: 'Severity (SEV1 first)' },
-  { value: 'status,asc', label: 'Status' },
-]
 
 export function IncidentList() {
+  const navigate = useNavigate()
   const [data, setData] = useState<{ content: Incident[]; totalElements: number; totalPages: number; page: number; size: number } | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -59,6 +55,8 @@ export function IncidentList() {
       .finally(() => setLoading(false))
   }, [page, size, sort, debouncedSearch, statusFilter, severityFilter, serviceFilter])
 
+  const handleFilterClick = () => setPage(0)
+
   const handleSortHeader = (key: SortKey) => {
     const dir = sort.startsWith(key) && sort.endsWith('asc') ? 'desc' : 'asc'
     setSort(`${key},${dir}`)
@@ -70,97 +68,99 @@ export function IncidentList() {
     return sort.endsWith('asc') ? 'asc' : 'desc'
   }
 
+  const formatDate = (iso: string) => {
+    const d = new Date(iso)
+    return d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
+  }
+
   return (
     <div className={styles.page}>
-      <div className={styles.toolbar}>
-        <h1 className={styles.title}>Incidents</h1>
-        <Link to="/incidents/new" className={styles.newButton}>New Incident</Link>
-      </div>
-
-      <div className={styles.filters}>
-        <input
-          type="search"
-          placeholder="Search title, service, owner, summary..."
-          value={searchInput}
-          onChange={(e) => { setSearchInput(e.target.value); setPage(0) }}
-          className={styles.search}
-          aria-label="Search incidents"
-        />
-        <select
-          value={statusFilter}
-          onChange={(e) => { setStatusFilter((e.target.value as Status) || ''); setPage(0) }}
-          className={styles.select}
-          aria-label="Filter by status"
-        >
-          <option value="">All statuses</option>
-          <option value="OPEN">OPEN</option>
-          <option value="MITIGATED">MITIGATED</option>
-          <option value="RESOLVED">RESOLVED</option>
-        </select>
-        <select
-          value={severityFilter}
-          onChange={(e) => { setSeverityFilter((e.target.value as Severity) || ''); setPage(0) }}
-          className={styles.select}
-          aria-label="Filter by severity"
-        >
-          <option value="">All severities</option>
-          <option value="SEV1">SEV1</option>
-          <option value="SEV2">SEV2</option>
-          <option value="SEV3">SEV3</option>
-          <option value="SEV4">SEV4</option>
-        </select>
-        <input
-          type="text"
-          placeholder="Service name"
-          value={serviceFilter}
-          onChange={(e) => { setServiceFilter(e.target.value); setPage(0) }}
-          className={styles.serviceInput}
-          aria-label="Filter by service"
-        />
-        <select
-          value={sort}
-          onChange={(e) => { setSort(e.target.value); setPage(0) }}
-          className={styles.select}
-          aria-label="Sort by"
-        >
-          {SORT_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>{o.label}</option>
-          ))}
-        </select>
+      <div className={styles.filtersSection}>
+        <div className={styles.filterGroup}>
+          <label className={styles.filterLabel}>Service</label>
+          <select
+            value={serviceFilter}
+            onChange={(e) => setServiceFilter(e.target.value)}
+            className={styles.select}
+            aria-label="Filter by service"
+          >
+            <option value="">All services</option>
+            {SERVICE_OPTIONS.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+        </div>
+        <div className={styles.filterGroup}>
+          <label className={styles.filterLabel}>Severity</label>
+          <div className={styles.severityCheckboxes}>
+            {SEVERITIES.map((sev) => (
+              <label key={sev} className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={severityFilter === sev}
+                  onChange={(e) => setSeverityFilter(e.target.checked ? sev : '')}
+                  className={styles.checkbox}
+                />
+                {sev}
+              </label>
+            ))}
+          </div>
+        </div>
+        <div className={styles.filterGroup}>
+          <label className={styles.filterLabel}>Status</label>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter((e.target.value as Status) || '')}
+            className={styles.select}
+            aria-label="Filter by status"
+          >
+            <option value="">All statuses</option>
+            <option value="OPEN">Open</option>
+            <option value="MITIGATED">Mitigated</option>
+            <option value="RESOLVED">Resolved</option>
+          </select>
+        </div>
+        <div className={styles.searchRow}>
+          <input
+            type="search"
+            placeholder="Search..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            className={styles.search}
+            aria-label="Search incidents"
+          />
+          <button type="button" onClick={handleFilterClick} className={styles.filterBtn}>Filter</button>
+        </div>
       </div>
 
       {error && <div className={styles.error} role="alert">{error}</div>}
 
       <div className={styles.tableWrap}>
         {loading ? (
-          <TableLoading rows={size} cols={7} />
+          <TableLoading rows={size} cols={5} />
         ) : data ? (
           <>
             <table className={styles.table}>
               <thead>
                 <tr>
                   <th><button type="button" onClick={() => handleSortHeader('title')} className={styles.thBtn}>Title {sortDir('title') === 'asc' && '↑'}{sortDir('title') === 'desc' && '↓'}</button></th>
-                  <th><button type="button" onClick={() => handleSortHeader('service')} className={styles.thBtn}>Service {sortDir('service') === 'asc' && '↑'}{sortDir('service') === 'desc' && '↓'}</button></th>
                   <th><button type="button" onClick={() => handleSortHeader('severity')} className={styles.thBtn}>Severity {sortDir('severity') === 'asc' && '↑'}{sortDir('severity') === 'desc' && '↓'}</button></th>
                   <th><button type="button" onClick={() => handleSortHeader('status')} className={styles.thBtn}>Status {sortDir('status') === 'asc' && '↑'}{sortDir('status') === 'desc' && '↓'}</button></th>
+                  <th><button type="button" onClick={() => handleSortHeader('createdAt')} className={styles.thBtn}>Created At {sortDir('createdAt') === 'asc' && '↑'}{sortDir('createdAt') === 'desc' && '↓'}</button></th>
                   <th>Owner</th>
-                  <th><button type="button" onClick={() => handleSortHeader('createdAt')} className={styles.thBtn}>Created {sortDir('createdAt') === 'asc' && '↑'}{sortDir('createdAt') === 'desc' && '↓'}</button></th>
-                  <th></th>
                 </tr>
               </thead>
               <tbody>
                 {data.content.length === 0 ? (
-                  <tr><td colSpan={7} className={styles.empty}>No incidents found.</td></tr>
+                  <tr><td colSpan={5} className={styles.empty}>No incidents found.</td></tr>
                 ) : (
                   data.content.map((inc) => (
-                    <tr key={inc.id}>
-                      <td className={styles.cellTitle}>{inc.title}</td>
-                      <td>{inc.service}</td>
+                    <tr key={inc.id} onClick={() => navigate(`/incidents/${inc.id}`)} className={styles.rowLink}>
+                      <td className={styles.cellTitle}><Link to={`/incidents/${inc.id}`} className={styles.titleLink} onClick={(e) => e.stopPropagation()}>{inc.title}</Link></td>
                       <td><span className={styles[`sev_${inc.severity}`]}>{inc.severity}</span></td>
-                      <td><span className={styles[`status_${inc.status}`]}>{inc.status}</span></td>
+                      <td><span className={styles[`status_${inc.status}`]}>{STATUS_LABEL[inc.status]}</span></td>
+                      <td className={styles.cellDate}>{formatDate(inc.createdAt)}</td>
                       <td>{inc.owner ?? '—'}</td>
-                      <td className={styles.cellDate}>{new Date(inc.createdAt).toLocaleString()}</td>
-                      <td><Link to={`/incidents/${inc.id}`} className={styles.viewLink}>View</Link></td>
                     </tr>
                   ))
                 )}

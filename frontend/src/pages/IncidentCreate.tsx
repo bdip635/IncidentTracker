@@ -1,13 +1,17 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { incidentsApi } from '../api/incidents'
-import type { IncidentCreate as IncidentCreateType, Severity } from '../types/incident'
+import type { IncidentCreate as IncidentCreateType, Severity, Status } from '../types/incident'
+import { SERVICE_OPTIONS } from '../constants/services'
 import styles from '../styles/IncidentCreate.module.css'
+
+const SEVERITIES: Severity[] = ['SEV1', 'SEV2', 'SEV3', 'SEV4']
 
 const initial: IncidentCreateType = {
   title: '',
   service: '',
-  severity: 'SEV3',
+  severity: 'SEV1',
+  status: 'OPEN',
   owner: '',
   summary: '',
 }
@@ -27,6 +31,7 @@ export function IncidentCreate() {
         ...form,
         title: form.title.trim(),
         service: form.service.trim(),
+        status: form.status || undefined,
         owner: form.owner?.trim() || null,
         summary: form.summary?.trim() || null,
       })
@@ -42,58 +47,85 @@ export function IncidentCreate() {
       <Link to="/" className={styles.backLink}>← Back to list</Link>
 
       <div className={styles.card}>
-        <h1 className={styles.title}>New Incident</h1>
+        <h1 className={styles.title}>Create New Incident</h1>
 
         {error && <div className={styles.error}>{error}</div>}
 
         <form onSubmit={handleSubmit} className={styles.form}>
-          <label className={styles.label}>Title *</label>
-          <input
-            required
-            value={form.title}
-            onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-            className={styles.input}
-            placeholder="Short description of the incident"
-          />
-
-          <label className={styles.label}>Service *</label>
-          <input
-            required
-            value={form.service}
-            onChange={(e) => setForm((f) => ({ ...f, service: e.target.value }))}
-            className={styles.input}
-            placeholder="e.g. Payment-Gateway"
-          />
-
-          <label className={styles.label}>Severity *</label>
-          <select
-            value={form.severity}
-            onChange={(e) => setForm((f) => ({ ...f, severity: e.target.value as Severity }))}
-            className={styles.select}
-          >
-            <option value="SEV1">SEV1</option>
-            <option value="SEV2">SEV2</option>
-            <option value="SEV3">SEV3</option>
-            <option value="SEV4">SEV4</option>
-          </select>
-
-          <label className={styles.label}>Owner (optional)</label>
-          <input
-            value={form.owner ?? ''}
-            onChange={(e) => setForm((f) => ({ ...f, owner: e.target.value }))}
-            className={styles.input}
-            placeholder="e.g. email@example.com"
-          />
-
-          <label className={styles.label}>Summary (optional)</label>
-          <textarea
-            value={form.summary ?? ''}
-            onChange={(e) => setForm((f) => ({ ...f, summary: e.target.value }))}
-            className={styles.textarea}
-            rows={4}
-            placeholder="Brief summary or notes"
-          />
-
+          <div className={styles.field}>
+            <label className={styles.label}>Title</label>
+            <input
+              required
+              value={form.title}
+              onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+              className={styles.input}
+              placeholder="Issue Title..."
+            />
+          </div>
+          <div className={styles.field}>
+            <label className={styles.label}>Service</label>
+            <select
+              required
+              value={form.service}
+              onChange={(e) => setForm((f) => ({ ...f, service: e.target.value }))}
+              className={styles.select}
+            >
+              <option value="">Select Service</option>
+              {SERVICE_OPTIONS.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </div>
+          <div className={styles.field}>
+            <label className={styles.label}>Severity</label>
+            <div className={styles.radioGroup}>
+              {SEVERITIES.map((sev) => (
+                <label key={sev} className={styles.radioLabel}>
+                  <input
+                    type="radio"
+                    name="severity"
+                    value={sev}
+                    checked={form.severity === sev}
+                    onChange={() => setForm((f) => ({ ...f, severity: sev }))}
+                    className={styles.radio}
+                  />
+                  {sev}
+                </label>
+              ))}
+            </div>
+          </div>
+          <div className={styles.field}>
+            <label className={styles.label}>Status</label>
+            <select
+              value={form.status ?? 'OPEN'}
+              onChange={(e) => setForm((f) => ({ ...f, status: e.target.value as Status }))}
+              className={styles.select}
+            >
+              <option value="">Select Status</option>
+              <option value="OPEN">Open</option>
+              <option value="MITIGATED">Mitigated</option>
+              <option value="RESOLVED">Resolved</option>
+            </select>
+          </div>
+          <div className={styles.field}>
+            <label className={styles.label}>Assigned To</label>
+            <input
+              value={form.owner ?? ''}
+              onChange={(e) => setForm((f) => ({ ...f, owner: e.target.value }))}
+              className={styles.input}
+              placeholder="Optional"
+            />
+          </div>
+          <div className={styles.field}>
+            <label className={styles.label}>Summary</label>
+            <textarea
+              value={form.summary ?? ''}
+              onChange={(e) => setForm((f) => ({ ...f, summary: e.target.value }))}
+              className={styles.textarea}
+              rows={4}
+              placeholder="Describe the incident..."
+            />
+          </div>
           <div className={styles.actions}>
             <Link to="/" className={styles.cancelLink}>Cancel</Link>
             <button type="submit" disabled={saving} className={styles.submitBtn}>

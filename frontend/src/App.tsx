@@ -12,7 +12,7 @@ function App() {
           <Link to="/" className={styles.logo}>Incident Tracker</Link>
           <nav className={styles.nav}>
             <Link to="/" className={styles.navLink}>Incidents</Link>
-            <Link to="/incidents/new" className={styles.navLink}>New Incident</Link>
+            <Link to="/incidents/new" className={styles.newButton}>New Incident</Link>
           </nav>
         </header>
         <main className={styles.main}>

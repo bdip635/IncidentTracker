@@ -11,7 +11,6 @@ export function IncidentDetail() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
-  const [editMode, setEditMode] = useState(false)
   const [form, setForm] = useState<IncidentUpdate | null>(null)
 
   useEffect(() => {
@@ -43,10 +42,20 @@ export function IncidentDetail() {
       .then((updated) => {
         setIncident(updated)
         setForm({ ...updated, owner: updated.owner ?? '', summary: updated.summary ?? '' })
-        setEditMode(false)
       })
       .catch((e) => setError(e instanceof Error ? e.message : 'Update failed'))
       .finally(() => setSaving(false))
+  }
+
+  const handleCancel = () => {
+    if (incident && form) {
+      setForm({ ...incident, owner: incident.owner ?? '', summary: incident.summary ?? '' })
+    }
+    setError(null)
+  }
+
+  const formatOccurredAt = (iso: string) => {
+    return new Date(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
   }
 
   if (loading || !id) {
@@ -73,34 +82,21 @@ export function IncidentDetail() {
       <Link to="/" className={styles.backLink}>← Back to list</Link>
 
       <div className={styles.card}>
-        <div className={styles.header}>
-          <h1 className={styles.title}>{editMode ? 'Edit Incident' : incident.title}</h1>
-          {!editMode ? (
-            <button type="button" onClick={() => setEditMode(true)} className={styles.editBtn}>Edit</button>
-          ) : (
-            <div className={styles.actions}>
-              <button type="button" onClick={() => { setEditMode(false); setForm({ ...incident, owner: incident.owner ?? '', summary: incident.summary ?? '' }) }} className={styles.cancelBtn}>Cancel</button>
-              <button type="button" onClick={handleSave} disabled={saving} className={styles.saveBtn}>{saving ? 'Saving…' : 'Save'}</button>
-            </div>
-          )}
-        </div>
+        <input
+          value={form.title}
+          onChange={(e) => setForm((f) => f ? { ...f, title: e.target.value } : f)}
+          className={styles.incidentTitleInput}
+          placeholder="Incident title"
+        />
 
-        {error && editMode && <div className={styles.errorInline}>{error}</div>}
+        {error && <div className={styles.errorInline}>{error}</div>}
 
-        {editMode ? (
-          <div className={styles.form}>
-            <label className={styles.label}>Title</label>
-            <input
-              value={form.title}
-              onChange={(e) => setForm((f) => f ? { ...f, title: e.target.value } : f)}
-              className={styles.input}
-            />
+        <div className={styles.form}>
+          <div className={styles.field}>
             <label className={styles.label}>Service</label>
-            <input
-              value={form.service}
-              onChange={(e) => setForm((f) => f ? { ...f, service: e.target.value } : f)}
-              className={styles.input}
-            />
+            <div className={styles.plainValue}>{form.service}</div>
+          </div>
+          <div className={styles.field}>
             <label className={styles.label}>Severity</label>
             <select
               value={form.severity}
@@ -111,52 +107,47 @@ export function IncidentDetail() {
                 <option key={s} value={s}>{s}</option>
               ))}
             </select>
+          </div>
+          <div className={styles.field}>
             <label className={styles.label}>Status</label>
             <select
               value={form.status}
               onChange={(e) => setForm((f) => f ? { ...f, status: e.target.value as Status } : f)}
               className={styles.select}
             >
-              <option value="OPEN">OPEN</option>
-              <option value="MITIGATED">MITIGATED</option>
-              <option value="RESOLVED">RESOLVED</option>
+              <option value="OPEN">Open</option>
+              <option value="MITIGATED">Mitigated</option>
+              <option value="RESOLVED">Resolved</option>
             </select>
-            <label className={styles.label}>Owner (optional)</label>
+          </div>
+          <div className={styles.field}>
+            <label className={styles.label}>Assigned To</label>
             <input
               value={form.owner ?? ''}
               onChange={(e) => setForm((f) => f ? { ...f, owner: e.target.value } : f)}
               className={styles.input}
-              placeholder="e.g. email@example.com"
+              placeholder="Optional"
             />
-            <label className={styles.label}>Summary (optional)</label>
+          </div>
+          <div className={styles.field}>
+            <label className={styles.label}>Occurred At</label>
+            <div className={styles.plainValue}>{formatOccurredAt(incident.createdAt)}</div>
+          </div>
+          <div className={styles.field}>
+            <label className={styles.label}>Summary</label>
             <textarea
               value={form.summary ?? ''}
               onChange={(e) => setForm((f) => f ? { ...f, summary: e.target.value } : f)}
               className={styles.textarea}
               rows={4}
-              placeholder="Brief summary or notes"
+              placeholder="Describe the incident..."
             />
           </div>
-        ) : (
-          <dl className={styles.dl}>
-            <dt>Title</dt>
-            <dd>{incident.title}</dd>
-            <dt>Service</dt>
-            <dd>{incident.service}</dd>
-            <dt>Severity</dt>
-            <dd><span className={styles[`sev_${incident.severity}`]}>{incident.severity}</span></dd>
-            <dt>Status</dt>
-            <dd><span className={styles[`status_${incident.status}`]}>{incident.status}</span></dd>
-            <dt>Owner</dt>
-            <dd>{incident.owner ?? '—'}</dd>
-            <dt>Summary</dt>
-            <dd>{incident.summary ?? '—'}</dd>
-            <dt>Created</dt>
-            <dd>{new Date(incident.createdAt).toLocaleString()}</dd>
-            <dt>Updated</dt>
-            <dd>{new Date(incident.updatedAt).toLocaleString()}</dd>
-          </dl>
-        )}
+          <div className={styles.actions}>
+            <button type="button" onClick={handleCancel} className={styles.cancelBtn}>Cancel</button>
+            <button type="button" onClick={handleSave} disabled={saving} className={styles.saveBtn}>{saving ? 'Saving…' : 'Save Changes'}</button>
+          </div>
+        </div>
       </div>
     </div>
   )

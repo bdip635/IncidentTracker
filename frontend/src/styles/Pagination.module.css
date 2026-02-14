@@ -5,9 +5,9 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 0.75rem 1rem;
-  border-top: 1px solid #334155;
-  background: #0f172a;
-  color: #94a3b8;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
   font-size: 0.875rem;
 }
 
@@ -30,10 +30,10 @@
 
 .sizeSelect {
   padding: 0.35rem 0.5rem;
-  border: 1px solid #475569;
+  border: 1px solid #cbd5e1;
   border-radius: 4px;
-  background: #1e293b;
-  color: #f8fafc;
+  background: #fff;
+  color: #334155;
   font-size: 0.875rem;
 }
 
@@ -45,17 +45,17 @@
 
 .btn {
   padding: 0.35rem 0.6rem;
-  border: 1px solid #475569;
+  border: 1px solid #cbd5e1;
   border-radius: 4px;
-  background: #1e293b;
-  color: #e2e8f0;
+  background: #fff;
+  color: #334155;
   cursor: pointer;
   font-size: 0.8125rem;
 }
 
 .btn:hover:not(:disabled) {
-  background: #334155;
-  color: #f8fafc;
+  background: #f1f5f9;
+  border-color: #94a3b8;
 }
 
 .btn:disabled {
@@ -65,5 +65,11 @@
 
 .pageNum {
   padding: 0 0.5rem;
-  color: #94a3b8;
+  color: #64748b;
+}
+
+.btnCurrent {
+  background: #334155;
+  color: #fff;
+  border-color: #334155;
 }
