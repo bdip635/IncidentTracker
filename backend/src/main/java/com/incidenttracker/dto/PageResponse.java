@@ -1,13 +1,9 @@
 package com.incidenttracker.dto;
 
-import lombok.Builder;
-import lombok.Data;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
 
-@Data
-@Builder
 public class PageResponse<T> {
 
     private List<T> content;
@@ -19,14 +15,22 @@ public class PageResponse<T> {
     private boolean last;
 
     public static <T> PageResponse<T> of(Page<T> page) {
-        return PageResponse.<T>builder()
-            .content(page.getContent())
-            .page(page.getNumber())
-            .size(page.getSize())
-            .totalElements(page.getTotalElements())
-            .totalPages(page.getTotalPages())
-            .first(page.isFirst())
-            .last(page.isLast())
-            .build();
+        PageResponse<T> r = new PageResponse<>();
+        r.content = page.getContent();
+        r.page = page.getNumber();
+        r.size = page.getSize();
+        r.totalElements = page.getTotalElements();
+        r.totalPages = page.getTotalPages();
+        r.first = page.isFirst();
+        r.last = page.isLast();
+        return r;
     }
+
+    public List<T> getContent() { return content; }
+    public int getPage() { return page; }
+    public int getSize() { return size; }
+    public long getTotalElements() { return totalElements; }
+    public int getTotalPages() { return totalPages; }
+    public boolean isFirst() { return first; }
+    public boolean isLast() { return last; }
 }

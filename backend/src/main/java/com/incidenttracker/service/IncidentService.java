@@ -5,7 +5,6 @@ import com.incidenttracker.model.Incident;
 import com.incidenttracker.model.Severity;
 import com.incidenttracker.model.Status;
 import com.incidenttracker.repository.IncidentRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -14,10 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class IncidentService {
 
     private final IncidentRepository incidentRepository;
+
+    public IncidentService(IncidentRepository incidentRepository) {
+        this.incidentRepository = incidentRepository;
+    }
 
     @Transactional(readOnly = true)
     public PageResponse<IncidentResponse> findAll(String search, Status status, Severity severity, String service, Pageable pageable) {

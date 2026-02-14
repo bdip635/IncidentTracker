@@ -6,7 +6,6 @@ import com.incidenttracker.model.Status;
 import com.incidenttracker.service.IncidentService;
 import com.incidenttracker.service.ResourceNotFoundException;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,11 +17,14 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/incidents")
-@RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:5173")
 public class IncidentController {
 
     private final IncidentService incidentService;
+
+    public IncidentController(IncidentService incidentService) {
+        this.incidentService = incidentService;
+    }
 
     @PostMapping
     public ResponseEntity<IncidentResponse> create(@Valid @RequestBody IncidentRequest request) {
@@ -75,8 +77,5 @@ public class IncidentController {
         return Sort.by(direction, property);
     }
 
-    @lombok.Data
-    public static class ApiError {
-        private final String message;
-    }
+    public record ApiError(String message) {}
 }

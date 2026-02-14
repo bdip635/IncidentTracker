@@ -4,18 +4,18 @@ import com.incidenttracker.model.Incident;
 import com.incidenttracker.model.Severity;
 import com.incidenttracker.model.Status;
 import com.incidenttracker.repository.IncidentRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Logger;
 
 @Component
-@RequiredArgsConstructor
-@Slf4j
 public class DataSeeder implements CommandLineRunner {
+
+    private static final Logger log = Logger.getLogger(DataSeeder.class.getName());
 
     private static final String[] SERVICES = {
         "Payment-Gateway", "Auth-Service", "User-API", "Order-Service", "Inventory-Service",
@@ -45,6 +45,10 @@ public class DataSeeder implements CommandLineRunner {
     private final IncidentRepository incidentRepository;
     private final Random random = new Random(42);
 
+    public DataSeeder(IncidentRepository incidentRepository) {
+        this.incidentRepository = incidentRepository;
+    }
+
     @Override
     public void run(String... args) {
         if (incidentRepository.count() > 0) {
@@ -52,7 +56,7 @@ public class DataSeeder implements CommandLineRunner {
             return;
         }
         log.info("Seeding database with ~200 incidents...");
-        List<Incident> incidents = new java.util.ArrayList<>();
+        List<Incident> incidents = new ArrayList<>();
         for (int i = 0; i < 200; i++) {
             Incident inc = Incident.builder()
                 .title(TITLE_PREFIXES[random.nextInt(TITLE_PREFIXES.length)] + " " + SERVICES[random.nextInt(SERVICES.length)])
@@ -65,6 +69,6 @@ public class DataSeeder implements CommandLineRunner {
             incidents.add(inc);
         }
         incidentRepository.saveAll(incidents);
-        log.info("Seeded {} incidents.", incidentRepository.count());
+        log.info("Seeded " + incidentRepository.count() + " incidents.");
     }
 }
