@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -46,6 +47,11 @@ public class IncidentController {
         Pageable pageable = PageRequest.of(page, size, order);
         PageResponse<IncidentResponse> result = incidentService.findAll(search, status, severity, service, pageable);
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/services")
+    public ResponseEntity<List<String>> getServices() {
+        return ResponseEntity.ok(incidentService.getDistinctServices());
     }
 
     @GetMapping("/{id}")

@@ -24,6 +24,9 @@ export const incidentsApi = {
   list: (params: ListParams = {}) =>
     api.get<PageResponse<Incident>>(`/incidents${buildQuery(params)}`),
 
+  getServices: () =>
+    api.get<string[]>('/incidents/services'),
+
   getById: (id: string) =>
     api.get<Incident>(`/incidents/${id}`),
 

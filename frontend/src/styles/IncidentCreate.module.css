@@ -53,6 +53,8 @@
   font-size: 0.875rem;
   font-weight: 500;
   color: #64748b;
+  display: block;
+  text-align: left;
 }
 
 .input,
@@ -105,14 +107,19 @@
   margin-top: 0.5rem;
 }
 
-.cancelLink {
-  color: #64748b;
-  text-decoration: none;
+.cancelBtn {
+  padding: 0.5rem 1.25rem;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-weight: 500;
   font-size: 0.9375rem;
+  cursor: pointer;
 }
 
-.cancelLink:hover {
-  color: #1e293b;
+.cancelBtn:hover {
+  background: #e2e8f0;
 }
 
 .submitBtn {

@@ -1,8 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { incidentsApi } from '../api/incidents'
-import type { IncidentCreate as IncidentCreateType, Severity, Status } from '../types/incident'
-import { SERVICE_OPTIONS } from '../constants/services'
+import type { IncidentCreate as IncidentCreateType, Severity } from '../types/incident'
 import styles from '../styles/IncidentCreate.module.css'
 
 const SEVERITIES: Severity[] = ['SEV1', 'SEV2', 'SEV3', 'SEV4']
@@ -11,7 +10,6 @@ const initial: IncidentCreateType = {
   title: '',
   service: '',
   severity: 'SEV1',
-  status: 'OPEN',
   owner: '',
   summary: '',
 }
@@ -21,6 +19,11 @@ export function IncidentCreate() {
   const [form, setForm] = useState<IncidentCreateType>(initial)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [services, setServices] = useState<string[]>([])
+
+  useEffect(() => {
+    incidentsApi.getServices().then(setServices).catch(() => setServices([]))
+  }, [])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,7 +34,6 @@ export function IncidentCreate() {
         ...form,
         title: form.title.trim(),
         service: form.service.trim(),
-        status: form.status || undefined,
         owner: form.owner?.trim() || null,
         summary: form.summary?.trim() || null,
       })
@@ -65,16 +67,26 @@ export function IncidentCreate() {
           <div className={styles.field}>
             <label className={styles.label}>Service</label>
             <select
-              required
+              required={services.length > 0}
               value={form.service}
               onChange={(e) => setForm((f) => ({ ...f, service: e.target.value }))}
               className={styles.select}
             >
               <option value="">Select Service</option>
-              {SERVICE_OPTIONS.map((s) => (
+              {services.map((s) => (
                 <option key={s} value={s}>{s}</option>
               ))}
             </select>
+            {services.length === 0 && (
+              <input
+                required
+                value={form.service}
+                onChange={(e) => setForm((f) => ({ ...f, service: e.target.value }))}
+                className={styles.input}
+                placeholder="Or enter new service name"
+                style={{ marginTop: '0.5rem' }}
+              />
+            )}
           </div>
           <div className={styles.field}>
             <label className={styles.label}>Severity</label>
@@ -93,19 +105,6 @@ export function IncidentCreate() {
                 </label>
               ))}
             </div>
-          </div>
-          <div className={styles.field}>
-            <label className={styles.label}>Status</label>
-            <select
-              value={form.status ?? 'OPEN'}
-              onChange={(e) => setForm((f) => ({ ...f, status: e.target.value as Status }))}
-              className={styles.select}
-            >
-              <option value="">Select Status</option>
-              <option value="OPEN">Open</option>
-              <option value="MITIGATED">Mitigated</option>
-              <option value="RESOLVED">Resolved</option>
-            </select>
           </div>
           <div className={styles.field}>
             <label className={styles.label}>Assigned To</label>
@@ -127,9 +126,11 @@ export function IncidentCreate() {
             />
           </div>
           <div className={styles.actions}>
-            <Link to="/" className={styles.cancelLink}>Cancel</Link>
             <button type="submit" disabled={saving} className={styles.submitBtn}>
               {saving ? 'Creating…' : 'Create Incident'}
+            </button>
+            <button type="button" onClick={() => navigate('/')} className={styles.cancelBtn}>
+              Cancel
             </button>
           </div>
         </form>

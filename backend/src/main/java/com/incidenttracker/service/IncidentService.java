@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -19,6 +20,11 @@ public class IncidentService {
 
     public IncidentService(IncidentRepository incidentRepository) {
         this.incidentRepository = incidentRepository;
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> getDistinctServices() {
+        return incidentRepository.findDistinctServices();
     }
 
     @Transactional(readOnly = true)

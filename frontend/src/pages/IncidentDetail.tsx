@@ -1,17 +1,21 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { incidentsApi } from '../api/incidents'
 import type { Incident, IncidentUpdate, Severity, Status } from '../types/incident'
 import styles from '../styles/IncidentDetail.module.css'
 
 export function IncidentDetail() {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
   const [incident, setIncident] = useState<Incident | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState<IncidentUpdate | null>(null)
+  const [services, setServices] = useState<string[]>([])
+
+  useEffect(() => {
+    incidentsApi.getServices().then(setServices).catch(() => setServices([]))
+  }, [])
 
   useEffect(() => {
     if (!id) return
@@ -54,8 +58,14 @@ export function IncidentDetail() {
     setError(null)
   }
 
-  const formatOccurredAt = (iso: string) => {
-    return new Date(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  const formatDateTime = (iso: string) => {
+    return new Date(iso).toLocaleString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
   }
 
   if (loading || !id) {
@@ -94,7 +104,19 @@ export function IncidentDetail() {
         <div className={styles.form}>
           <div className={styles.field}>
             <label className={styles.label}>Service</label>
-            <div className={styles.plainValue}>{form.service}</div>
+            <select
+              value={form.service ?? ''}
+              onChange={(e) => setForm((f) => f ? { ...f, service: e.target.value } : f)}
+              className={styles.select}
+            >
+              <option value="">Select Service</option>
+              {[
+                ...(form.service && !services.includes(form.service) ? [form.service] : []),
+                ...services,
+              ].map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
           </div>
           <div className={styles.field}>
             <label className={styles.label}>Severity</label>
@@ -130,10 +152,6 @@ export function IncidentDetail() {
             />
           </div>
           <div className={styles.field}>
-            <label className={styles.label}>Occurred At</label>
-            <div className={styles.plainValue}>{formatOccurredAt(incident.createdAt)}</div>
-          </div>
-          <div className={styles.field}>
             <label className={styles.label}>Summary</label>
             <textarea
               value={form.summary ?? ''}
@@ -143,9 +161,17 @@ export function IncidentDetail() {
               placeholder="Describe the incident..."
             />
           </div>
+          <div className={styles.field}>
+            <label className={styles.label}>Occurred At</label>
+            <div className={styles.plainValue}>{formatDateTime(incident.createdAt)}</div>
+          </div>
+          <div className={styles.field}>
+            <label className={styles.label}>Updated At</label>
+            <div className={styles.plainValue}>{formatDateTime(incident.updatedAt)}</div>
+          </div>
           <div className={styles.actions}>
-            <button type="button" onClick={handleCancel} className={styles.cancelBtn}>Cancel</button>
             <button type="button" onClick={handleSave} disabled={saving} className={styles.saveBtn}>{saving ? 'Saving…' : 'Save Changes'}</button>
+            <button type="button" onClick={handleCancel} className={styles.cancelBtn}>Cancel</button>
           </div>
         </div>
       </div>

@@ -5,7 +5,6 @@ import type { Incident, ListParams, Severity, Status } from '../types/incident'
 import { useDebounce } from '../hooks/useDebounce'
 import { Pagination } from '../components/Pagination'
 import { TableLoading } from '../components/TableLoading'
-import { SERVICE_OPTIONS } from '../constants/services'
 import styles from '../styles/IncidentList.module.css'
 
 const SEVERITIES: Severity[] = ['SEV1', 'SEV2', 'SEV3', 'SEV4']
@@ -24,8 +23,13 @@ export function IncidentList() {
   const [statusFilter, setStatusFilter] = useState<Status | ''>('')
   const [severityFilter, setSeverityFilter] = useState<Severity | ''>('')
   const [serviceFilter, setServiceFilter] = useState('')
+  const [services, setServices] = useState<string[]>([])
 
   const debouncedSearch = useDebounce(searchInput, 350)
+
+  useEffect(() => {
+    incidentsApi.getServices().then(setServices).catch(() => setServices([]))
+  }, [])
 
   const params: ListParams = {
     page,
@@ -68,9 +72,14 @@ export function IncidentList() {
     return sort.endsWith('asc') ? 'asc' : 'desc'
   }
 
-  const formatDate = (iso: string) => {
-    const d = new Date(iso)
-    return d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
+  const formatDateTime = (iso: string) => {
+    return new Date(iso).toLocaleString('en-US', {
+      month: '2-digit',
+      day: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
   }
 
   return (
@@ -85,7 +94,7 @@ export function IncidentList() {
             aria-label="Filter by service"
           >
             <option value="">All services</option>
-            {SERVICE_OPTIONS.map((s) => (
+            {services.map((s) => (
               <option key={s} value={s}>{s}</option>
             ))}
           </select>
@@ -137,13 +146,14 @@ export function IncidentList() {
 
       <div className={styles.tableWrap}>
         {loading ? (
-          <TableLoading rows={size} cols={5} />
+          <TableLoading rows={size} cols={6} />
         ) : data ? (
           <>
             <table className={styles.table}>
               <thead>
                 <tr>
                   <th><button type="button" onClick={() => handleSortHeader('title')} className={styles.thBtn}>Title {sortDir('title') === 'asc' && '↑'}{sortDir('title') === 'desc' && '↓'}</button></th>
+                  <th><button type="button" onClick={() => handleSortHeader('service')} className={styles.thBtn}>Service {sortDir('service') === 'asc' && '↑'}{sortDir('service') === 'desc' && '↓'}</button></th>
                   <th><button type="button" onClick={() => handleSortHeader('severity')} className={styles.thBtn}>Severity {sortDir('severity') === 'asc' && '↑'}{sortDir('severity') === 'desc' && '↓'}</button></th>
                   <th><button type="button" onClick={() => handleSortHeader('status')} className={styles.thBtn}>Status {sortDir('status') === 'asc' && '↑'}{sortDir('status') === 'desc' && '↓'}</button></th>
                   <th><button type="button" onClick={() => handleSortHeader('createdAt')} className={styles.thBtn}>Created At {sortDir('createdAt') === 'asc' && '↑'}{sortDir('createdAt') === 'desc' && '↓'}</button></th>
@@ -152,14 +162,15 @@ export function IncidentList() {
               </thead>
               <tbody>
                 {data.content.length === 0 ? (
-                  <tr><td colSpan={5} className={styles.empty}>No incidents found.</td></tr>
+                  <tr><td colSpan={6} className={styles.empty}>No incidents found.</td></tr>
                 ) : (
                   data.content.map((inc) => (
                     <tr key={inc.id} onClick={() => navigate(`/incidents/${inc.id}`)} className={styles.rowLink}>
                       <td className={styles.cellTitle}><Link to={`/incidents/${inc.id}`} className={styles.titleLink} onClick={(e) => e.stopPropagation()}>{inc.title}</Link></td>
+                      <td className={styles.cellService}>{inc.service}</td>
                       <td><span className={styles[`sev_${inc.severity}`]}>{inc.severity}</span></td>
                       <td><span className={styles[`status_${inc.status}`]}>{STATUS_LABEL[inc.status]}</span></td>
-                      <td className={styles.cellDate}>{formatDate(inc.createdAt)}</td>
+                      <td className={styles.cellDate}>{formatDateTime(inc.createdAt)}</td>
                       <td>{inc.owner ?? '—'}</td>
                     </tr>
                   ))

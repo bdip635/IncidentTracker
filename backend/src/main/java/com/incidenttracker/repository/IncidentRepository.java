@@ -9,7 +9,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface IncidentRepository extends JpaRepository<Incident, java.util.UUID> {
+
+    @Query("SELECT DISTINCT i.service FROM Incident i ORDER BY i.service")
+    List<String> findDistinctServices();
 
     @Query("""
         SELECT i FROM Incident i WHERE
