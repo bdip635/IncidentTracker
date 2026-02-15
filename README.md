@@ -67,3 +67,19 @@ IncidentTracker/
 ├── frontend/         # React SPA
 └── README.md
 ```
+
+## Design Decisions & Tradeoffs
+
+- **Tech Stack**: Chose React (Vite + TypeScript) for fast frontend development and Spring Boot (Java 17) for robust backend APIs. H2 is used for easy local development and seeding.
+- **REST API**: Simple, stateless JSON API for easy integration and testing.
+- **Validation**: Backend enforces required fields and value constraints; frontend provides instant feedback.
+- **Pagination & Filtering**: Server-side for scalability, with debounced search to reduce load.
+- **Minimal Styling**: CSS Modules for scoped, maintainable styles. Focused on clarity and usability over custom theming.
+
+## Improvements with More Time
+
+- **Authentication & Authorization**: Add user accounts, roles, and secure endpoints.
+- **Testing**: Add unit, integration, and E2E tests for both frontend and backend.
+- **UI/UX Enhancements**: Responsive design, dark mode, accessibility improvements, and richer incident details.
+- **API Docs**: Add OpenAPI/Swagger documentation and example requests.
+- **Notifications**: Email or in-app notifications for incident updates.
