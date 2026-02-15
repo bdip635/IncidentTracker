@@ -24,7 +24,7 @@ Full-stack web app for creating, browsing, and managing production incidents. Bu
 
 ```bash
 cd backend
-./mvnw spring-boot:run
+mvn spring-boot:run
 ```
 
 API: `http://localhost:8080`. H2 console (optional): `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:file:./data/incidents`).
