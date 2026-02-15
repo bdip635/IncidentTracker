@@ -59,8 +59,6 @@ export function IncidentList() {
       .finally(() => setLoading(false))
   }, [page, size, sort, debouncedSearch, statusFilter, severityFilter, serviceFilter])
 
-  const handleFilterClick = () => setPage(0)
-
   const handleSortHeader = (key: SortKey) => {
     const dir = sort.startsWith(key) && sort.endsWith('asc') ? 'desc' : 'asc'
     setSort(`${key},${dir}`)
@@ -86,7 +84,6 @@ export function IncidentList() {
     <div className={styles.page}>
       <div className={styles.filtersSection}>
         <div className={styles.filterGroup}>
-          <label className={styles.filterLabel}>Service</label>
           <select
             value={serviceFilter}
             onChange={(e) => setServiceFilter(e.target.value)}
@@ -100,7 +97,6 @@ export function IncidentList() {
           </select>
         </div>
         <div className={styles.filterGroup}>
-          <label className={styles.filterLabel}>Severity</label>
           <div className={styles.severityCheckboxes}>
             {SEVERITIES.map((sev) => (
               <label key={sev} className={styles.checkboxLabel}>
@@ -116,7 +112,6 @@ export function IncidentList() {
           </div>
         </div>
         <div className={styles.filterGroup}>
-          <label className={styles.filterLabel}>Status</label>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter((e.target.value as Status) || '')}
@@ -138,7 +133,6 @@ export function IncidentList() {
             className={styles.search}
             aria-label="Search incidents"
           />
-          <button type="button" onClick={handleFilterClick} className={styles.filterBtn}>Filter</button>
         </div>
       </div>
 
